@@ -63,6 +63,18 @@ function download.ensure_downloaded(options, callback)
       local downloader = require('blink.download.downloader')
       return downloader.download(files, options.download_url, target_git_tag)
     end)
-    :map(function() callback(nil, require('blink.download.load')(options.binary_name)) end)
+    :map(function() callback(nil, download.load(options.module_name, options.binary_name)) end)
     :catch(function(err) callback(err) end)
 end
+
+--- @param module_name string
+--- @param binary_name string?
+download.load = function(module_name, binary_name)
+  local init_cpath = require('blink.download.cpath')
+  init_cpath(module_name)
+
+  binary_name = binary_name or require('blink.download.utils').derive_binary_name(module_name)
+  return require(binary_name)
+end
+
+return download

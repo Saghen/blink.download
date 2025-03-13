@@ -29,6 +29,8 @@ function my_plugin.setup()
 
     -- optionally, load the module directly elsewhere in your plugin
     local module = require('blink_delimiters')
+    -- or use the download.load function, to ensure cpath has been set
+    local module = require('blink.download').load('blink.delimiters') -- optionally provide the binary_name too
   end)
 end
 ```

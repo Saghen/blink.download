@@ -1,6 +1,12 @@
-local cpath_set = false
-local function init_cpath()
-  if cpath_set then return end
+--- @type table<string, boolean>
+local cpath_set_by_module = {}
+
+--- @param module_name string
+local function init_cpath(module_name)
+  if cpath_set_by_module[module_name] then return end
+
+  local path = package.searchpath(module_name, package.path)
+  if not path then error('Module not found: ' .. module_name) end
 
   --- @return string
   local function get_lib_extension()
@@ -13,21 +19,15 @@ local function init_cpath()
   -- since MSVC doesn't include the prefix
   package.cpath = package.cpath
     .. ';'
-    .. debug.getinfo(1).source:match('@?(.*/)')
-    .. '../../../../../target/release/lib?'
+    .. path
+    .. '/target/release/lib?'
     .. get_lib_extension()
     .. ';'
-    .. debug.getinfo(1).source:match('@?(.*/)')
-    .. '../../../../../target/release/?'
+    .. path
+    .. '/target/release/?'
     .. get_lib_extension()
 
-  cpath_set = true
+  cpath_set_by_module[module_name] = true
 end
 
---- @param module string
-local function load(module)
-  init_cpath()
-  return require(module)
-end
-
-return load
+return init_cpath

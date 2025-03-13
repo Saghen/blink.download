@@ -22,4 +22,11 @@ function utils.get_lib_extension()
   return '.so'
 end
 
+--- @param module_name string
+--- @return string
+function utils.derive_binary_name(module_name)
+  local replaced = module_name:gsub('%.', '_')
+  return replaced
+end
+
 return utils
