@@ -25,7 +25,7 @@ end
 --- @param module_name string
 --- @return string
 function utils.derive_binary_name(module_name)
-  local replaced = module_name:gsub('%.', '_')
+  local replaced = module_name:gsub('%.', '_'):gsub('%-', '_')
   return replaced
 end
 
