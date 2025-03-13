@@ -1,13 +1,36 @@
 local async = require('blink.download.lib.async')
 local utils = require('blink.download.lib.utils')
-local system = require('blink.download.system')
 
+--- @class blink.download.Files
+--- @field root_dir string
+--- @field lib_folder string
+--- @field lib_filename string
+--- @field lib_path string
+--- @field checksum_path string
+--- @field checksum_filename string
+--- @field version_path string
+---
+--- @field new fun(module_name: string, binary_name: string): blink.download.Files
+---
+--- @field get_version fun(self: blink.download.Files): blink.cmp.Task
+--- @field set_version fun(self: blink.download.Files, version: string): blink.cmp.Task
+---
+--- @field read_file fun(path: string): blink.cmp.Task
+--- @field write_file fun(path: string, data: string): blink.cmp.Task
+--- @field exists fun(path: string): blink.cmp.Task
+--- @field stat fun(path: string): blink.cmp.Task
+--- @field create_dir fun(path: string): blink.cmp.Task
+--- @field rename fun(old_path: string, new_path: string): blink.cmp.Task
+
+--- @type blink.download.Files
+--- @diagnostic disable-next-line: missing-fields
 local files = {}
 
 --- @param module_name string
 --- @param binary_name string
 function files.new(module_name, binary_name)
   local root_dir = package.searchpath(module_name, package.path)
+  if not root_dir then error('Module not found: ' .. module_name) end
 
   local lib_folder = root_dir .. '/target/release'
   local lib_filename = 'lib' .. binary_name .. utils.get_lib_extension()
@@ -26,60 +49,12 @@ function files.new(module_name, binary_name)
   return self
 end
 
---- Checksums ---
-
-function files:get_checksum()
-  return files.read_file(self.checksum_path):map(function(checksum) return vim.split(checksum, ' ')[1] end)
-end
-
-function files.get_checksum_for_file(path)
-  return async.task.new(function(resolve, reject)
-    local os = system.get_info()
-    local args
-    if os == 'linux' then
-      args = { 'sha256sum', path }
-    elseif os == 'mac' or os == 'osx' then
-      args = { 'shasum', '-a', '256', path }
-    elseif os == 'windows' then
-      args = { 'certutil', '-hashfile', path, 'SHA256' }
-    end
-
-    vim.system(args, {}, function(out)
-      if out.code ~= 0 then return reject('Failed to calculate checksum of pre-built binary: ' .. out.stderr) end
-
-      local stdout = out.stdout or ''
-      if os == 'windows' then stdout = vim.split(stdout, '\r\n')[2] end
-      -- We get an output like 'sha256sum filename' on most systems, so we grab just the checksum
-      return resolve(vim.split(stdout, ' ')[1])
-    end)
-  end)
-end
-
-function files:verify_checksum()
-  return async.task
-    .await_all({ files:get_checksum(), files.get_checksum_for_file(self.lib_path) })
-    :map(function(checksums)
-      assert(#checksums == 2, 'Expected 2 checksums, got ' .. #checksums)
-      assert(checksums[1] and checksums[2], 'Expected checksums to be non-nil')
-      assert(
-        checksums[1] == checksums[2],
-        'Checksum of pre-built binary does not match. Expected "' .. checksums[1] .. '", got "' .. checksums[2] .. '"'
-      )
-    end)
-end
-
 --- Prebuilt binary ---
 
 function files:get_version()
   return files
     .read_file(self.version_path)
-    :map(function(version)
-      if #version == 40 then
-        return { sha = version }
-      else
-        return { tag = version }
-      end
-    end)
+    :map(function(version) return { tag = version } end)
     :catch(function() return { missing = true } end)
 end
 
