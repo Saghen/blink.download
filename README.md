@@ -34,7 +34,7 @@ end
 ```
 
 
-Add the following to your `build.rs` to ensure. This deletes the `version` file created by the downloader, such that the downloader will accept the binary as-is.
+Add the following to your `build.rs`. This deletes the `version` file created by the downloader, such that the downloader will accept the binary as-is.
 
 ```rust
 fn main() {
