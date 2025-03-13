@@ -60,7 +60,8 @@ function download.ensure_downloaded(options, callback)
 
       -- download as per usual
       notify('Downloading pre-built binary...')
-      return require('blink.download.download')(files, options.download_url, target_git_tag)
+      local downloader = require('blink.download.downloader')
+      return downloader.download(files, options.download_url, target_git_tag)
     end)
     :map(function() callback(nil, require('blink.download.load')(options.binary_name)) end)
     :catch(function(err) callback(err) end)

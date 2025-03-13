@@ -3,13 +3,13 @@ local config = require('blink.download.config')
 local utils = require('blink.download.lib.utils')
 local system = require('blink.download.system')
 
-local download = {}
+local downloader = {}
 
 --- @param files blink.download.Files
 --- @param get_download_url fun(version: string, system_triple: string, extension: string): string
 --- @param version string
 --- @return blink.cmp.Task
-function download.download(files, get_download_url, version)
+function downloader.download(files, get_download_url, version)
   -- set the version to 'v0.0.0' to avoid a failure causing the pre-built binary being marked as locally built
   return files
     :set_version('v0.0.0')
@@ -23,7 +23,7 @@ function download.download(files, get_download_url, version)
     -- We instead write to a temporary file and rename it, as mentioned in:
     -- https://developer.apple.com/documentation/security/updating-mac-software
     :map(
-      function(library_url) return download.download_file(files, library_url, files.lib_filename .. '.tmp') end
+      function(library_url) return downloader.download_file(files, library_url, files.lib_filename .. '.tmp') end
     )
     :map(
       function()
@@ -40,7 +40,7 @@ end
 --- @param url string
 --- @param filename string
 --- @return blink.cmp.Task
-function download.download_file(files, url, filename)
+function downloader.download_file(files, url, filename)
   return async.task.new(function(resolve, reject)
     local args = { 'curl' }
 
@@ -73,3 +73,5 @@ function download.download_file(files, url, filename)
     end)
   end)
 end
+
+return downloader
