@@ -29,4 +29,12 @@ function utils.derive_binary_name(module_name)
   return replaced
 end
 
+--- @param module_name string
+--- @return string
+function utils.get_module_path(module_name)
+  local path = package.searchpath(module_name, package.path)
+  if not path then error('Module not found: ' .. module_name) end
+  return path
+end
+
 return utils

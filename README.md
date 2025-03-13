@@ -1,6 +1,6 @@
 # Blink Download (blink.download)
 
-Neovim libary for downloading pre-built binaries for rust based Neovim plugins. For a quick start, see the [neovim-lua-rust-template](https://github.com/Saghen/neovim-lua-rust-template).
+Neovim libary for downloading pre-built binaries for Rust based plugins. For a quick start, see the [neovim-lua-rust-template](https://github.com/Saghen/neovim-lua-rust-template).
 
 ## Usage
 

@@ -1,5 +1,6 @@
 local async = require('blink.download.lib.async')
 local git = require('blink.download.git')
+local utils = require('blink.download.utils')
 
 --- @class blink.download.Options
 --- @field download_url (fun(version: string): string) | nil
@@ -14,7 +15,7 @@ local download = {}
 --- @param callback fun(err: string | nil, module: any | nil)
 function download.ensure_downloaded(options, callback)
   callback = vim.schedule_wrap(callback)
-  if not options.binary_name then options.binary_name = options.module_name:gsub('%.', '_') end
+  if not options.binary_name then options.binary_name = utils.derive_binary_name(options.module_name) end
 
   local notify = function(msg, level)
     vim.schedule(
@@ -73,7 +74,7 @@ download.load = function(module_name, binary_name)
   local init_cpath = require('blink.download.cpath')
   init_cpath(module_name)
 
-  binary_name = binary_name or require('blink.download.utils').derive_binary_name(module_name)
+  binary_name = binary_name or utils.derive_binary_name(module_name)
   return require(binary_name)
 end
 

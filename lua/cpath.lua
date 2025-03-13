@@ -1,3 +1,5 @@
+local utils = require('blink.download.utils')
+
 --- @type table<string, boolean>
 local cpath_set_by_module = {}
 
@@ -5,8 +7,7 @@ local cpath_set_by_module = {}
 local function init_cpath(module_name)
   if cpath_set_by_module[module_name] then return end
 
-  local path = package.searchpath(module_name, package.path)
-  if not path then error('Module not found: ' .. module_name) end
+  local path = utils.get_module_path(module_name)
 
   --- @return string
   local function get_lib_extension()

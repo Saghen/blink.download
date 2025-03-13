@@ -1,19 +1,20 @@
 local download_config = require('blink.download.config')
 local async = require('blink.download.lib.async')
-local system = {}
 
-system.triples = {
-  mac = {
-    arm = 'aarch64-apple-darwin',
-    x64 = 'x86_64-apple-darwin',
-  },
-  windows = {
-    x64 = 'x86_64-pc-windows-msvc',
-  },
-  linux = {
-    android = 'aarch64-linux-android',
-    arm = function(libc) return 'aarch64-unknown-linux-' .. libc end,
-    x64 = function(libc) return 'x86_64-unknown-linux-' .. libc end,
+local system = {
+  triples = {
+    mac = {
+      arm = 'aarch64-apple-darwin',
+      x64 = 'x86_64-apple-darwin',
+    },
+    windows = {
+      x64 = 'x86_64-pc-windows-msvc',
+    },
+    linux = {
+      android = 'aarch64-linux-android',
+      arm = function(libc) return 'aarch64-unknown-linux-' .. libc end,
+      x64 = function(libc) return 'x86_64-unknown-linux-' .. libc end,
+    },
   },
 }
 

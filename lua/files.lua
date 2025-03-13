@@ -29,8 +29,7 @@ local files = {}
 --- @param module_name string
 --- @param binary_name string
 function files.new(module_name, binary_name)
-  local root_dir = package.searchpath(module_name, package.path)
-  if not root_dir then error('Module not found: ' .. module_name) end
+  local root_dir = utils.get_module_path(module_name)
 
   local lib_folder = root_dir .. '/target/release'
   local lib_filename = 'lib' .. binary_name .. utils.get_lib_extension()
