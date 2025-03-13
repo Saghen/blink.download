@@ -7,12 +7,10 @@ Neovim libary for downloading pre-built binaries for Rust based plugins. For a q
 Add the following at the top level of your plugin:
 
 ```lua
-local download = require('blink.download')
-
 local my_plugin = {}
 
 function my_plugin.setup()
-  download.ensure_downloaded({
+  require('blink.download').ensure_downloaded({
     -- omit this property to disable downloading
     -- i.e. https://github.com/Saghen/blink.delimiters/releases/download/v0.1.0/x86_64-unknown-linux-gnu.so
     download_url = function(version, system_triple, extension)
