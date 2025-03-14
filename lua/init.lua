@@ -3,6 +3,7 @@ local git = require('blink.download.git')
 
 --- @class blink.download.Options
 --- @field download_url (fun(version: string): string) | nil
+--- @field on_download fun()
 --- @field root_dir string
 --- @field output_dir string
 --- @field binary_name string
@@ -13,8 +14,7 @@ local download = {}
 
 --- @param options blink.download.Options
 --- @param callback fun(err: string | nil)
---- @param on_download fun()
-function download.ensure_downloaded(options, callback, on_download)
+function download.ensure_downloaded(options, callback)
   callback = vim.schedule_wrap(callback)
 
   local files = require('blink.download.files').new(options.root_dir, options.output_dir)
@@ -43,7 +43,7 @@ function download.ensure_downloaded(options, callback, on_download)
       if version.current.tag == target_git_tag then return end
 
       -- download
-      vim.schedule(function() on_download() end)
+      if options.on_download then vim.schedule(function() options.on_download() end) end
       local downloader = require('blink.download.downloader')
       return downloader.download(files, options.download_url, target_git_tag)
     end)
