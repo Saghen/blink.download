@@ -11,7 +11,7 @@ local my_plugin = {}
 
 function my_plugin.setup()
   -- get the root directory of the plugin, by getting the relative path to this file
-  -- for example, if this file is in `/lua/my_plugin.lua`, use `../../`
+  -- for example, if this file is in `/lua/my_plugin/init.lua`, use `../../`
   local root_dir = vim.fn.resolve(debug.getinfo(1).source:match('@?(.*/)') .. '../../')
 
   require('blink.download').ensure_downloaded({
