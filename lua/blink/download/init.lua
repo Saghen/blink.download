@@ -17,8 +17,8 @@ local download = {}
 function download.ensure_downloaded(options, callback)
   callback = vim.schedule_wrap(callback)
 
-  local files = require('blink.download.files').new(options.root_dir, options.output_dir)
-  require('blink.download.cpath')(files.lib_dir)
+  local files = require('blink.download.files').new(options.root_dir, options.output_dir, options.binary_name)
+  require('blink.download.cpath')(files.lib_folder)
 
   async.task
     .await_all({ git.get_version(files.root_dir), files:get_version() })
