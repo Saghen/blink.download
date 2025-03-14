@@ -26,7 +26,7 @@ function downloader.download(files, get_download_url, version)
     )
     :map(
       function()
-        files.rename(
+        return files.rename(
           files.lib_folder .. '/' .. files.lib_filename .. '.tmp',
           files.lib_folder .. '/' .. files.lib_filename
         )
