@@ -1,5 +1,4 @@
 local async = require('blink.download.lib.async')
-local utils = require('blink.download.lib.utils')
 
 --- @class blink.download.Files
 --- @field root_dir string
@@ -10,29 +9,31 @@ local utils = require('blink.download.lib.utils')
 --- @field checksum_filename string
 --- @field version_path string
 ---
---- @field new fun(module_name: string, binary_name: string): blink.download.Files
+--- @field new fun(root_dir: string, output_dir: string, binary_name: string): blink.download.Files
 ---
---- @field get_version fun(self: blink.download.Files): blink.cmp.Task
---- @field set_version fun(self: blink.download.Files, version: string): blink.cmp.Task
+--- @field get_version fun(self: blink.download.Files): blink.download.Task
+--- @field set_version fun(self: blink.download.Files, version: string): blink.download.Task
 ---
---- @field read_file fun(path: string): blink.cmp.Task
---- @field write_file fun(path: string, data: string): blink.cmp.Task
---- @field exists fun(path: string): blink.cmp.Task
---- @field stat fun(path: string): blink.cmp.Task
---- @field create_dir fun(path: string): blink.cmp.Task
---- @field rename fun(old_path: string, new_path: string): blink.cmp.Task
+--- @field get_lib_extension fun(): string Returns the extension for the library based on the current platform, including the dot (i.e. '.so' or '.dll')
+---
+--- @field read_file fun(path: string): blink.download.Task
+--- @field write_file fun(path: string, data: string): blink.download.Task
+--- @field exists fun(path: string): blink.download.Task
+--- @field stat fun(path: string): blink.download.Task
+--- @field create_dir fun(path: string): blink.download.Task
+--- @field rename fun(old_path: string, new_path: string): blink.download.Task
 
 --- @type blink.download.Files
 --- @diagnostic disable-next-line: missing-fields
 local files = {}
 
---- @param module_name string
---- @param binary_name string
-function files.new(module_name, binary_name)
-  local root_dir = utils.get_module_path(module_name)
+function files.new(root_dir, output_dir, binary_name)
+  -- Normalize trailing and leading slashes
+  if root_dir:sub(#root_dir, #root_dir) ~= '/' then root_dir = root_dir .. '/' end
+  if output_dir:sub(1, 1) == '/' then output_dir = output_dir:sub(2) end
 
-  local lib_folder = root_dir .. '/target/release'
-  local lib_filename = 'lib' .. binary_name .. utils.get_lib_extension()
+  local lib_folder = root_dir .. output_dir
+  local lib_filename = 'lib' .. binary_name .. files.get_lib_extension()
   local lib_path = lib_folder .. '/' .. lib_filename
 
   local self = setmetatable({}, { __index = files })
@@ -48,7 +49,7 @@ function files.new(module_name, binary_name)
   return self
 end
 
---- Prebuilt binary ---
+--- Version file ---
 
 function files:get_version()
   return files
@@ -58,7 +59,7 @@ function files:get_version()
 end
 
 --- @param version string
---- @return blink.cmp.Task
+--- @return blink.download.Task
 function files:set_version(version)
   return files
     .create_dir(self.root_dir .. '/target')
@@ -66,10 +67,18 @@ function files:set_version(version)
     :map(function() return files.write_file(self.version_path, version) end)
 end
 
+--- Util ---
+
+function files.get_lib_extension()
+  if jit.os:lower() == 'mac' or jit.os:lower() == 'osx' then return '.dylib' end
+  if jit.os:lower() == 'windows' then return '.dll' end
+  return '.so'
+end
+
 --- Filesystem helpers ---
 
 --- @param path string
---- @return blink.cmp.Task
+--- @return blink.download.Task
 function files.read_file(path)
   return async.task.new(function(resolve, reject)
     vim.uv.fs_open(path, 'r', 438, function(open_err, fd)
@@ -83,9 +92,6 @@ function files.read_file(path)
   end)
 end
 
---- @param path string
---- @param data string
---- @return blink.cmp.Task
 function files.write_file(path, data)
   return async.task.new(function(resolve, reject)
     vim.uv.fs_open(path, 'w', 438, function(open_err, fd)
@@ -99,16 +105,12 @@ function files.write_file(path, data)
   end)
 end
 
---- @param path string
---- @return blink.cmp.Task
 function files.exists(path)
   return async.task.new(function(resolve)
     vim.uv.fs_stat(path, function(err) resolve(not err) end)
   end)
 end
 
---- @param path string
---- @return blink.cmp.Task
 function files.stat(path)
   return async.task.new(function(resolve, reject)
     vim.uv.fs_stat(path, function(err, stat)
@@ -118,8 +120,6 @@ function files.stat(path)
   end)
 end
 
---- @param path string
---- @return blink.cmp.Task
 function files.create_dir(path)
   return files
     .stat(path)
@@ -137,9 +137,6 @@ function files.create_dir(path)
     end)
 end
 
---- Renames a file
---- @param old_path string
---- @param new_path string
 function files.rename(old_path, new_path)
   return async.task.new(function(resolve, reject)
     vim.uv.fs_rename(old_path, new_path, function(err)

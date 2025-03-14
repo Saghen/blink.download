@@ -1,20 +1,20 @@
 --- Allows chaining of async operations without callback hell
 ---
 --- @class blink.download.Task
---- @field status blink.cmp.TaskStatus
+--- @field status blink.download.TaskStatus
 --- @field result any | nil
 --- @field error any | nil
---- @field new fun(fn: fun(resolve: fun(result: any), reject: fun(err: any)): fun()?): blink.cmp.Task
+--- @field new fun(fn: fun(resolve: fun(result: any), reject: fun(err: any)): fun()?): blink.download.Task
 ---
---- @field cancel fun(self: blink.cmp.Task)
---- @field map fun(self: blink.cmp.Task, fn: fun(result: any): blink.cmp.Task | any): blink.cmp.Task
---- @field catch fun(self: blink.cmp.Task, fn: fun(err: any): blink.cmp.Task | any): blink.cmp.Task
---- @field schedule fun(self: blink.cmp.Task): blink.cmp.Task
---- @field timeout fun(self: blink.cmp.Task, ms: number): blink.cmp.Task
+--- @field cancel fun(self: blink.download.Task)
+--- @field map fun(self: blink.download.Task, fn: fun(result: any): blink.download.Task | any): blink.download.Task
+--- @field catch fun(self: blink.download.Task, fn: fun(err: any): blink.download.Task | any): blink.download.Task
+--- @field schedule fun(self: blink.download.Task): blink.download.Task
+--- @field timeout fun(self: blink.download.Task, ms: number): blink.download.Task
 ---
---- @field on_completion fun(self: blink.cmp.Task, cb: fun(result: any))
---- @field on_failure fun(self: blink.cmp.Task, cb: fun(err: any))
---- @field on_cancel fun(self: blink.cmp.Task, cb: fun())
+--- @field on_completion fun(self: blink.download.Task, cb: fun(result: any))
+--- @field on_failure fun(self: blink.download.Task, cb: fun(err: any))
+--- @field on_cancel fun(self: blink.download.Task, cb: fun())
 --- @field _completion_cbs function[]
 --- @field _failure_cbs function[]
 --- @field _cancel_cbs function[]

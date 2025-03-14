@@ -10,6 +10,10 @@ Add the following at the top level of your plugin:
 local my_plugin = {}
 
 function my_plugin.setup()
+  -- get the root directory of the plugin, by getting the relative path to this file
+  -- for example, if this file is in `/lua/my_plugin.lua`, use `../../`
+  local root_dir = vim.fn.resolve(debug.getinfo(1).source:match('@?(.*/)') .. '../../')
+
   require('blink.download').ensure_downloaded({
     -- omit this property to disable downloading
     -- i.e. https://github.com/Saghen/blink.delimiters/releases/download/v0.1.0/x86_64-unknown-linux-gnu.so
@@ -17,18 +21,13 @@ function my_plugin.setup()
       return 'https://github.com/saghen/blink.delimiters/releases/download/' .. version .. '/' .. system_triple .. extension
     end,
 
-    module_name = 'blink.delimiters',
-    -- optional, defaults to module_name with `.` replaced with `_`
-    -- binary_name = 'blink_delimiters',
-  }, function(err, module)
+    root_dir,
+    output_dir = '/target/release',
+    binary_name = 'blink_delimiters' -- excluding `lib` prefix
+  }, function(err)
     if err then error(err) end
 
-    -- rest of your setup
-
-    -- optionally, load the module directly elsewhere in your plugin
-    local module = require('blink_delimiters')
-    -- or use the download.load function, to ensure cpath has been set
-    local module = require('blink.download').load('blink.delimiters') -- optionally provide the binary_name too
+    local rust_module = require('blink_delimiters')
   end)
 end
 ```

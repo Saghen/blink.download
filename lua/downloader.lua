@@ -1,6 +1,5 @@
 local async = require('blink.download.lib.async')
 local config = require('blink.download.config')
-local utils = require('blink.download.lib.utils')
 local system = require('blink.download.system')
 
 local downloader = {}
@@ -8,7 +7,7 @@ local downloader = {}
 --- @param files blink.download.Files
 --- @param get_download_url fun(version: string, system_triple: string, extension: string): string
 --- @param version string
---- @return blink.cmp.Task
+--- @return blink.download.Task
 function downloader.download(files, get_download_url, version)
   -- set the version to 'v0.0.0' to avoid a failure causing the pre-built binary being marked as locally built
   return files
@@ -17,7 +16,7 @@ function downloader.download(files, get_download_url, version)
     :map(function() system.get_triple() end)
     :map(function(system_triple)
       if not system_triple then return error('Your system is not supported by pre-built binaries') end
-      return get_download_url(version, system_triple, utils.get_lib_extension())
+      return get_download_url(version, system_triple, files.get_lib_extension())
     end)
     -- Mac caches the library in the kernel, so updating in place causes a crash
     -- We instead write to a temporary file and rename it, as mentioned in:
@@ -39,7 +38,7 @@ end
 --- @param files blink.download.Files
 --- @param url string
 --- @param filename string
---- @return blink.cmp.Task
+--- @return blink.download.Task
 function downloader.download_file(files, url, filename)
   return async.task.new(function(resolve, reject)
     local args = { 'curl' }
