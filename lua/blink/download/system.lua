@@ -1,4 +1,4 @@
-local download_config = require('blink.download.config')
+local config = require('blink.download.config')
 local async = require('blink.download.lib.async')
 
 local system = {
@@ -61,10 +61,10 @@ end
 
 --- Gets the system triple for the current system
 --- I.e. `x86_64-unknown-linux-gnu` or `aarch64-apple-darwin`
---- @return blink.cmp.Task
+--- @return blink.download.Task
 function system.get_triple()
   return async.task.new(function(resolve, reject)
-    if download_config.force_system_triple then return resolve(download_config.force_system_triple) end
+    if config.force_system_triple then return resolve(config.force_system_triple) end
 
     local os, arch = system.get_info()
     local triples = system.triples[os]

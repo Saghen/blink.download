@@ -13,7 +13,7 @@ function downloader.download(files, get_download_url, version)
   return files
     :set_version('v0.0.0')
     -- Get system trip
-    :map(function() system.get_triple() end)
+    :map(function() return system.get_triple() end)
     :map(function(system_triple)
       if not system_triple then return error('Your system is not supported by pre-built binaries') end
       return get_download_url(version, system_triple, files.get_lib_extension())
