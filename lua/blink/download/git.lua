@@ -1,4 +1,4 @@
-local async = require('blink.download.async')
+local async = require('blink.download.lib.async')
 
 --- @class blink.download.Git
 local git = {}
