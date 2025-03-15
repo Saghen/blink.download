@@ -2,7 +2,7 @@ local async = require('blink.download.lib.async')
 local git = require('blink.download.git')
 
 --- @class blink.download.Options
---- @field download_url (fun(version: string): string) | nil
+--- @field download_url (fun(version: string, system_triple: string, extension: string): string) | nil
 --- @field on_download fun()
 --- @field root_dir string
 --- @field output_dir string
