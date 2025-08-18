@@ -99,9 +99,9 @@ end
 
 --- Same as `system.get_triple` but synchronous
 --- @see system.get_triple
---- @return string | nil
+--- @return string | function | nil
 function system.get_triple_sync()
-  if download_config.force_system_triple then return download_config.force_system_triple end
+  if config.force_system_triple then return config.force_system_triple end
 
   local os, arch = system.get_info()
   local triples = system.triples[os]
